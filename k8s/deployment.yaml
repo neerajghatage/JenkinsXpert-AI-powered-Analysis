@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins-mcp-server
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: jenkins-mcp
+  template:
+    metadata:
+      labels:
+        app: jenkins-mcp
+    spec:
+      containers:
+      - name: mcp-server
+        image: imagestorage.azurecr.io/jenkins-mcp-server:v1
+        ports:
+        - containerPort: 8000
+        env:
+          - name: AZURE_OPENAI_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: azure-openai-secret
+                key: apiKey
+          - name: AZURE_OPENAI_ENDPOINT
+            valueFrom:
+              configMapKeyRef:
+                name: azure-openai-config
+                key: endpoint
+          - name: AZURE_OPENAI_DEPLOYMENT
+            valueFrom:
+              configMapKeyRef:
+                name: azure-openai-config
+                key: deployment
+          - name: AZURE_OPENAI_API_VERSION
+            valueFrom:
+              configMapKeyRef:
+                name: azure-openai-config
+                key: apiVersion
+          - name: LOG_LEVEL
+            valueFrom:
+              configMapKeyRef:
+                name: azure-openai-config
+                key: logLevel
+          - name: JENKINS_URL
+            valueFrom:
+              configMapKeyRef:
+                name: azure-openai-config
+                key: JENKINS_URL
+          - name: JENKINS_USERNAME
+            valueFrom:
+              configMapKeyRef:
+                name: azure-openai-config
+                key: JENKINS_USERNAME
+          - name: JENKINS_API_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: azure-openai-secret
+                key: JENKINS_API_TOKEN
